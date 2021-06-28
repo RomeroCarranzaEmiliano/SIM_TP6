@@ -1,2 +1,2 @@
-# SIM TP5
-Trabajo práctico 5 - Simulación
+# SIM TP6
+Trabajo práctico 6 - Simulación

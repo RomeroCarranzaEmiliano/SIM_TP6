@@ -74,10 +74,12 @@ $(document).ready(function(){
             // Resetear la tabla
             empty_table = `<table id="result_table">
              <tr id="table_header">
-                 <th colspan="3" rowspan="1">Promedio permanencia: ${resultados.promedio}</th>
-                 <th colspan="4" rowspan="1">Filas simuladas: ${resultados.filas}</th>
+                 <th colspan="3" rowspan="1">Promedio permanencia:</th>
+                 <th colspan="4" rowspan="1">Filas simuladas:</th>
+
                  <th colspan="3" rowspan="2">inicio_verde</th>
                  <th colspan="3" rowspan="2">Cruce</th>
+                 <th colspan="4" rowspan="2">Fallo</th>
                  <th colspan="1" rowspan="3">Infraccion</th>
                  <th colspan="1" rowspan="3">Ac infracciones</th>
                  <th colspan="1" rowspan="3">Cantidad que pasaron por Colon</th>
@@ -90,7 +92,7 @@ $(document).ready(function(){
              </tr>
              <tr>
                 <th colspan="3" rowspan="1">Eventos</th>
-                <th colspan="4" rowspan="1">llegada_auto</th>
+                 <th colspan="4" rowspan="1">llegada_auto</th>
                 <th colspan="3" rowspan="1">S1(Colón)</th>
                  <th colspan="3" rowspan="1">S2(Urquiza)</th>
                  <th colspan="3" rowspan="1">Auto 1</th>
@@ -119,6 +121,11 @@ $(document).ready(function(){
                  <th>RND</th>
                  <th>Tiempo</th>
                  <th>Fin cruce</th>
+
+                 <th>RND</th>
+                 <th>Tiempo</th>
+                 <th>Proximo fallo</th>
+                 <th>Fin arreglo</th>
 
                  <th>Estado</th>
                  <th>Color</th>
@@ -180,6 +187,10 @@ $(document).ready(function(){
                          <td>${row_data.cruce.rnd}</td>
                          <td>${row_data.cruce.tiempo}</td>
                          <td>${row_data.cruce.fin_cruce}</td>
+                         <td>${row_data.fallo.rnd}</td>
+                         <td>${row_data.fallo.tiempo_entre_fallos}</td>
+                         <td>${row_data.fallo.proximo_fallo}</td>
+                         <td>${row_data.fallo.fin_arreglo}</td>
                          <td>${row_data.infraccion}</td>
                          <td>${row_data.ac_infracciones}</td>
                          <td>${row_data.q_autos_por_colon}</td>

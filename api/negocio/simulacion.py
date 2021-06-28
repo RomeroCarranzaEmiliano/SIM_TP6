@@ -33,11 +33,26 @@ def comparar_horas(hora_1, hora_2):
         return "mayor"
 
 
+def menor_de(vector_de_horas):
+    menor = 0
+    index = 0
+    i = 0
+    for hora in vector_de_horas:
+        hora = hora.split(":")
+        hora_en_segundos = int(hora[0])*60*60 + int(hora[1])*60 + int(hora[2])
+        if hora_en_segundos < menor or menor == 0:
+            menor = hora_en_segundos
+            index = i
+        i += 1
+    return index
+
+
 def obtener_proximo_evento(experimento):
     """"""
     t_llegada_auto = experimento["llegada_auto"]["proxima_llegada"]
     t_cambio_de_semaforo = experimento["inicio_verde"]["fin_amarillo"]
     t_fin_cruce = experimento["cruce"]["fin_cruce"]
+    t_fallo = experimento["fallo"]["proximo_fallo"]
 
     # Si no se simulo un tiempo para el evento, se le da un numero ridiculamente grade para siempre elegir el otro
     if t_llegada_auto == "":
@@ -46,32 +61,34 @@ def obtener_proximo_evento(experimento):
         t_cambio_de_semaforo = "100:100:100"
     if t_fin_cruce == "":
         t_fin_cruce = "100:100:100"
+    if t_fallo == "":
+        t_fallo = "100:100:100"
+
+    vector_de_horas = [t_llegada_auto, t_fin_cruce, t_cambio_de_semaforo, t_fallo]
 
     # Detectar si se debe pasar a un nuevo dia
     if comparar_horas(t_llegada_auto, "10:00:00") == "mayor" and \
-            comparar_horas(t_cambio_de_semaforo, "10:00:00") == "mayor":
+            comparar_horas(t_cambio_de_semaforo, "10:00:00") == "mayor" and \
+            comparar_horas(t_fin_cruce, "10:00:00") == "mayor":
         experimento["eventos"]["dia"] += 1
         experimento["llegada_auto"]["proxima_llegada"] = restar_horas(t_llegada_auto, "02:00:00")
         experimento["inicio_verde"]["fin_amarillo"] = restar_horas(t_cambio_de_semaforo, "02:00:00")
         experimento["cruce"]["fin_cruce"] = restar_horas(t_fin_cruce, "02:00:00")
         experimento["eventos"]["hora"] = "08:00:00"
+        experimento["fallo"]["proximo_fallo"] = restar_horas(t_fallo, "02:00:00")
 
         e, t = obtener_proximo_evento(experimento)
         return e, t
 
-    e = "llegada_auto"
-    t = t_llegada_auto
-    if comparar_horas(t_llegada_auto, t_cambio_de_semaforo) == "menor"\
-                and comparar_horas(t_llegada_auto, t_fin_cruce) == "menor":
-        e = "llegada_auto"
-        t = t_llegada_auto
-    elif comparar_horas(t_cambio_de_semaforo, t_fin_cruce) == "menor"\
-                and comparar_horas(t_cambio_de_semaforo, t_llegada_auto) == "menor":
-        e = "inicio_verde"
-        t = t_cambio_de_semaforo
-    elif t_fin_cruce != "100:100:100":
-        e = "fin_cruce"
-        t = t_fin_cruce
+    i = menor_de(vector_de_horas)
+    if i == 0:
+        e, t = "llegada_auto", t_llegada_auto
+    elif i == 1:
+        e, t = "fin_cruce", t_fin_cruce
+    elif i == 2:
+        e, t = "inicio_verde", t_cambio_de_semaforo
+    else:
+        e, t = "fallo_semaforo", t_fallo
 
     return e, t
 
@@ -403,6 +420,43 @@ def simular_fin_cruce(experimento):
 
     return experimento
 
+
+def obtener_proximo_fallo(rnd):
+    """"""
+    fallos = [
+        ["100%", 0.5, 0.5, 117],
+        ["70%", 0.3, 0.8, 94],
+        ["50%", 0.2, 1, 73]
+    ]
+    proximo = 73
+    for v in fallos:
+        if rnd < v[2]:
+            proximo = v[3]
+            break
+    return proximo
+
+
+def fallo_semaforo(experimento):
+    """"""
+    t_de_arreglo = 354 # segundos
+    t_de_arreglo = "00:00:"+str(t_de_arreglo)
+
+    rnd = random.random()
+    fallo = obtener_proximo_fallo(rnd)
+
+    proximo_fallo = "00:00:"+str(fallo)
+    hora_actual = experimento["eventos"]["hora"]
+    proximo_fallo = sumar_hora(hora_actual, proximo_fallo)
+
+    experimento["fallo"]["rnd"] = rnd
+    experimento["fallo"]["tiempo_entre_fallos"] = fallo
+    experimento["fallo"]["proximo_fallo"] = proximo_fallo
+    experimento["fallo"]["fin_arreglo"] = sumar_hora(hora_actual, t_de_arreglo)
+
+    return experimento
+
+
+
 def simular(dias, j, k):
     """
     """
@@ -416,10 +470,13 @@ def simular(dias, j, k):
             "rnd_calle": "", "calle": "", "rnd_tiempo": "", "proxima_llegada": ""
         },
         "inicio_verde": {
-            "fin_verde": "", "fin_amarillo": "08:00:00", "proximo": "s1"
+            "fin_verde": "07:59:59", "fin_amarillo": "08:00:00", "proximo": "s1"
         },
         "cruce": {
             "rnd": "", "tiempo": "", "fin_cruce": ""
+        },
+        "fallo": {
+            "rnd": "", "tiempo_entre_fallos": "", "proximo_fallo": "", "fin_arreglo": ""
         },
         "semaforos": {
             "s1": {"estado": "habilitado", "color": "rojo", "cola": 0},
@@ -439,12 +496,14 @@ def simular(dias, j, k):
     simular_evento = {
         "inicio_verde": simular_inicio_verde,
         "llegada_auto": simular_llegada_auto,
-        "fin_cruce": simular_fin_cruce
+        "fin_cruce": simular_fin_cruce,
+        "fallo_semaforo": fallo_semaforo,
     }
 
     tabla = []
 
     experimento = simular_evento["llegada_auto"](experimento)
+    experimento = simular_evento["fallo_semaforo"](experimento)
 
     completado = 0
     contador = 0
@@ -483,6 +542,7 @@ def simular(dias, j, k):
         if round((experimento["eventos"]["dia"]/dias)*100) > completado:
             print("COMPLETADO:", round(completado), "%")
         completado = round((experimento["eventos"]["dia"]/dias)*100)
+
 
     print(round(completado))
 
