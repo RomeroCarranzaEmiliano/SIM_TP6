@@ -10,6 +10,7 @@
 
 # IMPORTS #########################################################################################
 import negocio.simulacion
+import negocio.rungeKutta as rungeKutta
 import json
 ###################################################################################################
 
@@ -40,9 +41,19 @@ def simulacion(parameters):
 
     return resultados
 
+
+def rk(parameters):
+    """"""
+    y = parameters[0]
+    resultado, tabla = rungeKutta.calcular(0, y, True)
+
+    return tabla
+
+
 # Diccionario de eventos
 # -------------------------------------------------------------------------------------------------
 dictionary = {
     "ws-test": ws_test,
     "simular": simulacion,
+    "rk": rk,
 }

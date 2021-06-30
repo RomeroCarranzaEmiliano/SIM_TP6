@@ -7,6 +7,7 @@ import random
 import time
 import json
 import copy
+import negocio.rungeKutta as Arreglo
 ###################################################################################################
 
 
@@ -189,6 +190,13 @@ def completar_simulacion(experimento):
     experimento["semaforos"][proximo]["estado"] = "inhabilitado"
     experimento["semaforos"][proximo]["color"] = "rojo"
 
+    if experimento["banderas"]["fallo"] and \
+            comparar_horas(experimento["fallo"]["fin_arreglo"], hora_actual) == "mayor":
+        experimento["semaforos"]["s1"]["estado"] = "inhabilitado"
+        experimento["semaforos"]["s1"]["color"] = "FALLO"
+    else:
+        experimento["banderas"]["fallo"] = False
+
     return experimento
 
 
@@ -264,6 +272,9 @@ def simular_llegada_auto(experimento):
     experimento["llegada_auto"]["calle"] = calles[semaforo]
 
     experimento["ac_autos"] += 1
+
+    if semaforo == "s1":
+        experimento["ac_llegadas_entre_fallos"] += 1
 
     return experimento
 
@@ -438,7 +449,8 @@ def obtener_proximo_fallo(rnd):
 
 def fallo_semaforo(experimento):
     """"""
-    t_de_arreglo = 354 # segundos
+    ac_llegadas = experimento["ac_llegadas_entre_fallos"]
+    t_de_arreglo, tabla = Arreglo.calcular(0, ac_llegadas, False)
     t_de_arreglo = "00:00:"+str(t_de_arreglo)
 
     rnd = random.random()
@@ -452,6 +464,11 @@ def fallo_semaforo(experimento):
     experimento["fallo"]["tiempo_entre_fallos"] = fallo
     experimento["fallo"]["proximo_fallo"] = proximo_fallo
     experimento["fallo"]["fin_arreglo"] = sumar_hora(hora_actual, t_de_arreglo)
+
+    experimento["banderas"]["fallo"] = True
+
+    experimento["ultimo_ac_llegdas"] = experimento["ac_llegadas_entre_fallos"]
+    experimento["ac_llegadas_entre_fallos"] = 0
 
     return experimento
 
@@ -483,6 +500,7 @@ def simular(dias, j, k):
             "s2": {"estado": "inhabilitado", "color": "rojo", "cola": 0},
         },
         "infraccion": "",
+        "ac_llegadas_entre_fallos": 0,
         "ac_infracciones": 0,
         "ac_espera": "00:00:00",
         "q_autos_por_colon": 0,
@@ -490,7 +508,9 @@ def simular(dias, j, k):
         "ac_pasada": 0,
         "q_max_en_una_pasada": 0,
         "ac_autos": 0,
-        "autos": []
+        "autos": [],
+        "banderas": {"fallo": False},
+        "ultimo_ac_llegadas": 0
     }
 
     simular_evento = {

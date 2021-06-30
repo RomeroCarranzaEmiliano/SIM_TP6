@@ -79,8 +79,9 @@ $(document).ready(function(){
 
                  <th colspan="3" rowspan="2">inicio_verde</th>
                  <th colspan="3" rowspan="2">Cruce</th>
-                 <th colspan="4" rowspan="2">Fallo</th>
+                 <th colspan="4" rowspan="2">Fallo(Colón)</th>
                  <th colspan="1" rowspan="3">Infraccion</th>
+                 <th colspan="1" rowspan="3">llegadas_entre_fallos(Colón)</th>
                  <th colspan="1" rowspan="3">Ac infracciones</th>
                  <th colspan="1" rowspan="3">Cantidad que pasaron por Colon</th>
                  <th colspan="1" rowspan="3">Cantidad max que tuvieron que esperar</th>
@@ -190,8 +191,9 @@ $(document).ready(function(){
                          <td>${row_data.fallo.rnd}</td>
                          <td>${row_data.fallo.tiempo_entre_fallos}</td>
                          <td>${row_data.fallo.proximo_fallo}</td>
-                         <td>${row_data.fallo.fin_arreglo}</td>
+                         <td>${row_data.fallo.fin_arreglo}<a class="rk" href=${"rk.html?y="+String(row_data.ultimo_ac_llegdas)+""} target="_blank" rel="noopener noreferrer">&#128065;</a></td>
                          <td>${row_data.infraccion}</td>
+                         <td>${row_data.ac_llegadas_entre_fallos}</td>
                          <td>${row_data.ac_infracciones}</td>
                          <td>${row_data.q_autos_por_colon}</td>
                          <td>${row_data.q_max_en_espera}</td>
@@ -301,5 +303,6 @@ $(document).ready(function(){
             $("#inp_j").css({"border-color":"gray"});
         }
     });
+
 
 });
