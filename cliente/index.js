@@ -69,13 +69,12 @@ $(document).ready(function(){
             //var result = data[0].toFixed(2);
             var tabla = data[1];
             var resultados = data[0]
-            console.log(event.data);
 
             // Resetear la tabla
             empty_table = `<table id="result_table">
              <tr id="table_header">
-                 <th colspan="3" rowspan="1">Promedio permanencia:</th>
-                 <th colspan="4" rowspan="1">Filas simuladas:</th>
+                 <th colspan="3" rowspan="1" id="promedio">Promedio permanencia:</th>
+                 <th colspan="4" rowspan="1" id="filas">Filas simuladas:</th>
 
                  <th colspan="3" rowspan="2">inicio_verde</th>
                  <th colspan="3" rowspan="2">Cruce</th>
@@ -165,14 +164,10 @@ $(document).ready(function(){
         </table>`
             $("#result_table").html(empty_table);
 
-            //$("#result_tag").text("Resultado: "+result+"%");
-
             // Dibujar tabla
             var i;
             for(i=0; i<tabla.length; i++) {
                 row_data = tabla[i];
-
-                console.log(row_data.autos)
 
                 new_row = `<tr>
                          <td>${row_data.eventos.evento}</td>
@@ -241,6 +236,9 @@ $(document).ready(function(){
                     $("#result_table").append(html);
                     $("#last_line").css({"background-color":"green", "color":"white"});
                 }
+
+                $("#promedio").text("Promedio permanencia: "+resultados.promedio);
+                $("#filas").text("Filas simuladas: "+String(resultados.filas));
             }
 
         }
