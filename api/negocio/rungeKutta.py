@@ -25,7 +25,6 @@ def calcular(x, y, guardar_tabla):
     #linea = [x1, y1, k1, y2, k2, x2, y3, k3, x4, y4, k4, x4, yf, abs(yf - y), (abs(yf - y) < 0.02)]
     #tabla.append(linea)
     while 1:
-        print("calculando")
         x1 = x
         y1 = y
         k1 = f(x1, y1)
